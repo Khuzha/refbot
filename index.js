@@ -18,7 +18,7 @@ const buttonsLimit = {
   limit: 1,
   onLimitExceeded: (ctx, next) => {
     if ('callback_query' in ctx.update)
-    ctx.answerCbQuery('Вы нажимаете на кнопки слишком часто, подождите немного.', true)
+    ctx.answerCbQuery('You`ve pressed buttons too oftern, wait.', true)
       .catch((err) => sendError(err, ctx))
   },
   keyGenerator: (ctx) => {
@@ -53,8 +53,8 @@ bot.hears(/^\/start (.+[1-9]$)/, async (ctx) => {
       text.hello + ctx.from.id,
       Extra
       .markup(Markup.inlineKeyboard([
-        [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-        [Markup.callbackButton('💵 Баланс', 'balance'), Markup.callbackButton('📱 Мой номер', 'number')]
+        [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+        [Markup.callbackButton('💵 Balance', 'balance'), Markup.callbackButton('📱 My number', 'number')]
       ]))
       .webPreview(false)
     )
@@ -74,8 +74,8 @@ bot.start(async (ctx) => {
       text.hello + ctx.from.id,
       Extra
       .markup(Markup.inlineKeyboard([
-        [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-        [Markup.callbackButton('💵 Баланс', 'balance'), Markup.callbackButton('📱 Мой номер', 'number')]
+        [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+        [Markup.callbackButton('💵 Balance', 'balance'), Markup.callbackButton('📱 My number', 'number')]
       ]))
       .webPreview(false)
     )
@@ -96,8 +96,8 @@ bot.action('main', async (ctx) => {
     text.hello + ctx.from.id,
     Extra
     .markup(Markup.inlineKeyboard([
-      [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-      [Markup.callbackButton('💵 Баланс', 'balance'), Markup.callbackButton('📱 Мой номер', 'number')],
+      [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+      [Markup.callbackButton('💵 Balance', 'balance'), Markup.callbackButton('📱 My number', 'number')],
     ]))
     .webPreview(false)
   )
@@ -125,10 +125,10 @@ bot.action('balance', async (ctx) => {
     }
   
     ctx.editMessageText(
-      'Ваш баланс на данный момент составляет ' + sum + ' сум. Вы пригласили ' + allRefs.length + ' человек.' + payments,
+      'You balance now: ' + sum + ' {currency}. You`ve invited ' + allRefs.length + ' persons.' + payments,
       Extra
       .markup(Markup.inlineKeyboard([
-        [Markup.callbackButton('◀️ Назад', 'main'), Markup.callbackButton('💸 Вывести деньги', 'withdraw')]
+        [Markup.callbackButton('◀️ Back', 'main'), Markup.callbackButton('💸 Withdraw', 'withdraw')]
       ]))
     )
       .catch((err) => sendError(err, ctx))
@@ -159,11 +159,11 @@ bot.action('withdraw', async (ctx) => {
 
     if (!('number' in thisUsersData[0])) {
       return ctx.editMessageText(
-        'Вы не указали номер, на который нужно вывести деньги.',
+        'You didn`t add your number.',
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.callbackButton('◀️ На главную', 'main')],
-          [Markup.callbackButton('💵 Баланс', 'balance'), Markup.callbackButton('📱 Мой номер', 'number')],
+          [Markup.callbackButton('◀️ Main page', 'main')],
+          [Markup.callbackButton('💵 Balance', 'balance'), Markup.callbackButton('📱 My number', 'number')],
         ]))
         .webPreview(false)
       )
@@ -172,21 +172,21 @@ bot.action('withdraw', async (ctx) => {
 
     if (sum >= minSum && subscribed) {
       ctx.editMessageText(
-        '✅ Ваша заявка на вывод принята, как только Вам выплатят деньги, Вы получите сообщение.', 
+        '✅ Your request is accepted. You`ll get message about payment as soon as or admins pay you.', 
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.callbackButton('◀️ На главную', 'main')]
+          [Markup.callbackButton('◀️ Main page', 'main')]
         ]))
       )
         .catch((err) => sendError(err, ctx))
   
       bot.telegram.sendMessage( // send message to admin
         data.admins[1],
-        'Заявка на вывод. \nЮзер: [' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ')\n' +
-        'Сумма: ' + sum + ' сум. \nНомер: ' + thisUsersData[0].number,
+        'New request. \nUser: [' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ')\n' +
+        'The sum: ' + sum + ' {currency}. \nNumber: ' + thisUsersData[0].number,
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.callbackButton('✅ Оплатил', 'paid_' + ctx.from.id)]
+          [Markup.callbackButton('✅ Paid', 'paid_' + ctx.from.id)]
         ]))
         .markdown()
       )
@@ -201,37 +201,37 @@ bot.action('withdraw', async (ctx) => {
         .catch((err) => sendError(err, ctx))
     } else if (sum >= minSum && !subscribed) {
       ctx.editMessageText(
-        'Вы не подписались на канал ' + data.chanLink + '. Сделайте это и нажмите кнопку "Вывести деньги" снова.',
+        'You didn`t subscribe to the channel ' + data.chanLink + '. Make that and press "Withdraw" again.',
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.urlButton('📥 Подписаться на канал', data.chanLink)],
-          [Markup.callbackButton('◀️ Назад', 'balance')]
+          [Markup.urlButton('📥 Subscribe the channel', data.chanLink)],
+          [Markup.callbackButton('◀️ Back', 'balance')]
         ]))
         .webPreview(false)
       )
         .catch((err) => sendError(err, ctx))
     } else if (sum < minSum && subscribed) {
       ctx.editMessageText(
-        'Ваш баланс: ' + sum + ' сум, минимальная сумма вывода — ' + minSum +' сум. ' + 
-        'Вам нужно пригласить еще человек: ' + friendsLeft + 
-        '. \nВот Ваша ссылка, поделитесь ею: t.me/RefOneBot?start=' + ctx.from.id,
+        'Your balance: ' + sum + ' {currency}, minimal sum for witdraw is ' + minSum +' {currency}. ' + 
+        'You should invite yet : ' + friendsLeft + 
+        ' more persons. \nHere`s your link, share it: t.me/RefOneBot?start=' + ctx.from.id,
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-          [Markup.callbackButton('◀️ Назад', 'balance')]
+          [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+          [Markup.callbackButton('◀️ Back', 'balance')]
         ]))
         .webPreview(false)
       )
         .catch((err) => sendError(err, ctx))
     } else {
       ctx.editMessageText(
-        'Вы не выполнили ни одного из условий. Наберите 1000 сум, пригласив друзей по Вашей реферальной ссылке ' +
-        'и подпишитесь на канал ' + data.chanLink + '',
+        'You didn`t performed no condition. Collect 1000 {currency} by inviting friends' +
+        'and subscribe the channel ' + data.chanLink + '',
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-          [Markup.urlButton('📥 Подписаться на канал', data.chanLink)],
-          [Markup.callbackButton('◀️ Назад', 'balance')]
+          [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+          [Markup.urlButton('📥 Subscribe the channel', data.chanLink)],
+          [Markup.callbackButton('◀️ Back', 'balance')]
         ]))
         .webPreview(false)
       )
@@ -247,9 +247,9 @@ bot.action(/paid_[1-9]/, async (ctx) => {
     ctx.answerCbQuery()
     let userId = ctx.update.callback_query.data.substr(5)
   
-    ctx.editMessageText(ctx.update.callback_query.message.text + '\n\n✅ Оплачено')
+    ctx.editMessageText(ctx.update.callback_query.message.text + '\n\n✅ Paid')
       .catch((err) => sendError(err, ctx))
-    bot.telegram.sendMessage(userId, 'Ваша заявка на вывод денег была оплачена.')
+    bot.telegram.sendMessage(userId, 'Your withdraw was paid.')
       .catch((err) => sendError(err, ctx))
   } catch (err) {
     sendError(err, ctx)
@@ -264,19 +264,19 @@ bot.action('number', async (ctx) => {
     
     if ('number' in dbData[0]) {
       ctx.editMessageText(
-        'Ваш номер: ' + dbData[0].number + '\n❗️ Проверьте его, именно на него будет произведена оплата.',
+        'Your number: ' + dbData[0].number + '\n❗️ Check it! On this num we will withdraw your money.',
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.callbackButton('◀️ Назад', 'main'), Markup.callbackButton('🖊 Изменить', 'get_number')]
+          [Markup.callbackButton('◀️ Back', 'main'), Markup.callbackButton('🖊 Edit', 'get_number')]
         ])) 
         )
           .catch((err) => sendError(err, ctx))
     } else {
       ctx.editMessageText(
-        'Вы еще не указали свой номер.',
+        'You didn`t added your number yet.',
         Extra
         .markup(Markup.inlineKeyboard([
-          [Markup.callbackButton('◀️ Назад', 'main'), Markup.callbackButton('🖊 Добавить', 'get_number')]
+          [Markup.callbackButton('◀️ Back', 'main'), Markup.callbackButton('🖊 Add num', 'get_number')]
         ]))
       )
         .catch((err) => sendError(err, ctx))
@@ -293,7 +293,7 @@ bot.action('get_number', async (ctx) => {
     ctx.scene.enter('getNumber')
   
     ctx.editMessageText(
-      'Введите Ваш номер в формате +998971234567:',
+      'Enter your number in form +998971234567:',
       Extra
       .markup(Markup.inlineKeyboard([
         [Markup.callbackButton('◀️ Отменить', 'number')]
@@ -305,11 +305,11 @@ bot.action('get_number', async (ctx) => {
   }
 })
 
-getNumber.hears(/^.+998[0-9]{9}$/, async (ctx) => {
+getNumber.hears(/^.+998[0-9]{9}$/, async (ctx) => { // replace 998 to your country`s code or turn off regexp
   ctx.reply('Ваш номер: ' + ctx.message.text,
     Extra
     .markup(Markup.inlineKeyboard([
-      [Markup.callbackButton('◀️ Назад', 'main'), Markup.callbackButton('🖊 Изменить', 'get_number')]
+      [Markup.callbackButton('◀️ Back', 'main'), Markup.callbackButton('🖊 Edit', 'get_number')]
     ]))
   )
     .catch((err) => sendError(err, ctx))
@@ -324,7 +324,7 @@ bot.command('getmembers', async (ctx) => {
   if (data.admins.includes(ctx.from.id)) {
     try {
       let dbData = await db.collection('allUsers').find({}).toArray()
-      ctx.reply('🌀 Всего юзеров запускало бота: ' + dbData.length)
+      ctx.reply('🌀 All users: ' + dbData.length)
     } catch (err) {
       sendError(err, ctx)
     }
@@ -342,22 +342,22 @@ let sendError = async (err, ctx) => {
           text.hello + ctx.from.id,
           Extra
           .markup(Markup.inlineKeyboard([
-            [Markup.urlButton('📨 Поделиться ссылкой', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
-            [Markup.callbackButton('💵 Баланс', 'balance'), Markup.callbackButton('📱 Мой номер', 'number')],
+            [Markup.urlButton('📨 Share link', 't.me/share/url?url=' + urlencode(text.invite + ctx.from.id))],
+            [Markup.callbackButton('💵 Balance', 'balance'), Markup.callbackButton('📱 My number', 'number')],
           ]))
           .webPreview(false)
         )
       }, 500)
     } else if (err.code === 429) {
       return ctx.editMessageText(
-        'Вы нажимали на кнопки слишком часто и были заблокированы Телеграмом на некоторое время.' +
-        'Попробуйте воспользоваться кнопками через несколько секунд'
+        'You`ve pressed buttons too often and were blocked by Telegram' +
+        'Wait some minutes and try again'
       )
     }
 
-    bot.telegram.sendMessage(data.admins[0], 'Ошибка у [' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ')\nТекст ошибки: ' + err.toString(), {parse_mode: 'markdown'})
+    bot.telegram.sendMessage(data.admins[0], '[' + ctx.from.first_name + '](tg://user?id=' + ctx.from.id + ') has got an error.\nError text: ' + err.toString(), {parse_mode: 'markdown'})
   } else {
-    bot.telegram.sendMessage(data.admins[0], 'Ошибка:' + err.toString())
+    bot.telegram.sendMessage(data.admins[0], 'There`s an error:' + err.toString())
   }
 }
 
