@@ -332,7 +332,7 @@ bot.command('getmembers', async (ctx) => {
 })
 
 
-let sendError = async (err, ctx) => {
+async function sendError(err, ctx) {
   console.log(err.toString())
   if (ctx != undefined) {
     if (err.code === 400) {
